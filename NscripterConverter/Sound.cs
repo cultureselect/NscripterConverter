@@ -12,5 +12,10 @@ namespace NscripterConverter
         public String Title;
         public String Type;
         public String FileName;
+
+        public override String ToString()
+        {
+            return Label + "\t" + Title + "\t" + Type + "\t" + FileName;
+        }
     }
 }

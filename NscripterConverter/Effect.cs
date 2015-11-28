@@ -82,19 +82,29 @@ namespace NscripterConverter
 
         }
 
-        public String toString()
+        public override String ToString()
         {
             StringBuilder sb = new StringBuilder();
             if (Number != -1)
                 sb.Append("Effect Command #" + Number);
             else
                 sb.Append("(Effect: ");
-            sb.Append(" Index # " + Index + " " + Runtime + "ms");
+            sb.Append(" Index #" + Index + " " + Runtime + "ms");
             if (PatternFileName != null)
                 sb.Append(" Pattern: " + PatternFileName);
 
             if (Number == -1)
                 sb.Append(")");
+
+            return sb.ToString();
+        }
+
+        public static String getTotalCalls()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Total Effect Calls:");
+            for (int i = 0; i < TOTAL_CALLS.Length; i++)
+                sb.Append(i + ": " + TOTAL_CALLS[i] + "\n");
 
             return sb.ToString();
         }

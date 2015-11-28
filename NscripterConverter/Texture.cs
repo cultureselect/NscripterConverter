@@ -14,5 +14,12 @@ namespace NscripterConverter
         public String Filename;
 
         public Effect Effect;
+
+        public String ToString()
+        {
+            return Label + "\t" + Type + "\t" + "\t\t\t" + Filename + "\t\t\t\t\t\t" + Effect.ToString();
+
+
+        }
     }
 }

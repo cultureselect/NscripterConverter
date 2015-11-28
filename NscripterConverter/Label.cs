@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -96,6 +97,55 @@ namespace NscripterConverter
 
             throw new Exception("unable to find a Character at " + pos);
         }
-  
+
+        public bool writeFiles(String dir)
+        {
+            bool wrote = false;
+            StringBuilder sb = new StringBuilder();
+
+            Characters = Characters.OrderBy(Ch => Ch.FileName).ToList();
+            Sounds = Sounds.OrderBy(So => So.FileName).ToList();
+            Textures = Textures.OrderBy(Te => Te.Filename).ToList();
+
+            foreach (Character c in Characters)
+                sb.Append(c.ToString()).Append("\n");
+            if (sb.Length > 0)
+            {
+                wrote = true;
+                File.WriteAllText(dir + "/Characters.tsv", sb.ToString());
+            }
+
+            sb.Clear();
+           
+            foreach (Command c in Commands)
+                sb.Append(c.ToString()).Append("\n");
+            if (sb.Length > 0)
+            {
+                wrote = true;
+                File.WriteAllText(dir + "/Commands.tsv", sb.ToString());
+            }
+
+            sb.Clear();
+
+            foreach (Sound s in Sounds)
+                sb.Append(s.ToString()).Append("\n");
+            if (sb.Length > 0)
+            {
+                wrote = true;
+                File.WriteAllText(dir + "/Sounds.tsv", sb.ToString());
+            }
+
+            sb.Clear();
+
+            foreach(Texture t in Textures)
+                sb.Append(t.ToString()).Append("\n");
+            if (sb.Length > 0)
+            {
+                wrote = true;
+                File.WriteAllText(dir + "/Textures.tsv", sb.ToString());
+            }
+
+            return wrote;
+        }
     }
 }

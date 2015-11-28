@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,8 @@ namespace NscripterConverter
             List<Label> Labels = new List<Label>();
 
             Label curr = null;
+
+            String TextColor = null;
 
             foreach (String line in lines)
             {
@@ -104,9 +107,8 @@ namespace NscripterConverter
                 }
                 else if (line.StartsWith("bgmloop", StringComparison.OrdinalIgnoreCase))
                 {
-                    //TODO
+                    //TODO?
                     throw new Exception("Not implemented!");
-
                 }
                 else if (line.StartsWith("bgm", StringComparison.OrdinalIgnoreCase) && !line.StartsWith("bgmloop", StringComparison.OrdinalIgnoreCase))
                 {
@@ -205,7 +207,7 @@ namespace NscripterConverter
 
                     cl.FileName = fname;
                     cl.CharacterName = cname;
-                    cl.Pattern = ""; //TODO: Split Cname into multiple patterns?
+                    cl.Pattern = ""; //TODO?: Split Cname into multiple patterns
 
                     if(data.Length > 3)
                         cl.Effect = new Effect(data[2], data[3]);
@@ -236,7 +238,12 @@ namespace NscripterConverter
                 }
                 else if(line.StartsWith("click"))
                 {
-                    //TODO
+                    Command wait = new Command();
+
+                    wait.Comm = "";
+                    wait.PageCtl = "Input";
+
+                    curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, wait);
                 }
                 else if (line.StartsWith("cl"))
                 {
@@ -266,15 +273,42 @@ namespace NscripterConverter
                 }
                 else if (line.StartsWith("`"))
                 {
-                    //Handle a text command
-                    Command text = new Command();
+                    //Handle a text command(s)
+                    String[] data = line.Split('@').ToArray();
 
-                    //TODO
+                    foreach (String text in data)
+                    {
+                       if(text.Trim().Length == 0)
+                           continue; //ignore whitespace junk
 
+                        Command nu = new Command();
+                        nu.Comm = "";
+                        if (TextColor != null)
+                            nu.Text = "<color=" + TextColor + "ff>" + text;
+                        else
+                            nu.Text = text;
+
+                        if (text.IndexOf("\\") >= 0)
+                        {
+                            text.Trim('\\');
+                            nu.PageCtl = "";
+                        }
+                        else
+                            nu.PageCtl = "Input";
+
+                        curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, nu);
+                    }
                 }
                 else if (line.StartsWith("monocro", StringComparison.OrdinalIgnoreCase))
                 {
-                    //TODO
+                    //TODO: REVISIT
+                    Command mono = new Command();
+                    String[] data = line.Split(' ').Select(d => d.Trim()).ToArray();
+
+                    mono.Comm = "Monocro";
+                    mono.Arg[0] = data[1];
+
+                    curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, mono);
 
                 }
                 else if (line.StartsWith("wait", StringComparison.OrdinalIgnoreCase))
@@ -333,19 +367,63 @@ namespace NscripterConverter
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, br);
                 }
+                else if (line.StartsWith("#"))
+                {
+                    //Change the color of the next text command
+                    TextColor = line;
+                }
+                else if (line.StartsWith("@"))
+                {
+                    //Handle enter click wait state
+                    Command com = new Command();
+                    com.Comm = "";
+                    com.PageCtl = "Input";
+
+                    curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, com);
+                }
+                else if (line.StartsWith("\\"))
+                {
+                    //Handle end-of-page wait
+                    Command com = new Command();
+                    com.Comm = "";
+                    com.PageCtl = "";
+
+                    curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, com);
+
+                }
                 else
                 {
                     //Handle something else that is probably not needed but probably will end up being useful
-                    Console.Write(line + "\n");
+                    Console.WriteLine(line);
                 }
             }
 
             //Now that our labels are full of information, write a folder for each one
-            //TODO
+            Console.Write(Effect.getTotalCalls());
+            Console.Beep();
+            Console.WriteLine("All Done!");
+            Console.ReadKey();
+            Console.WriteLine("Preparing to dump...");
+            Console.Beep();
+
+            String dir = @"C:\Users\Rob\Desktop\Wish Conversion\Test1\";
+
+            foreach (Label lab in Labels)
+            {
+                String dirpath = dir + lab.Name;
+                Directory.CreateDirectory(dirpath);
+                bool wrote = lab.writeFiles(dirpath);
+                if (wrote)
+                    Console.WriteLine(dirpath + "\t has data!");
+                else
+                    Directory.Delete(dirpath);
+            }
 
             Console.Beep();
+            Console.WriteLine("...Done");
             Console.ReadKey();
-            int DEBUG = 0;
+
+
         }
     }
 }

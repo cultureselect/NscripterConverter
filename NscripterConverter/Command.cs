@@ -14,5 +14,19 @@ namespace NscripterConverter
         public String PageCtl;
 
         public Effect Effect;
+
+        public override String ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(Comm).Append("\t");
+            foreach (String a in Arg)
+                sb.Append(a ?? "").Append("\t");
+            sb.Append(Text).Append("\t");
+            sb.Append(PageCtl).Append("\t");
+            sb.Append("\t\t\t");
+            sb.Append(Effect);
+
+            return sb.ToString();
+        }
     }
 }
