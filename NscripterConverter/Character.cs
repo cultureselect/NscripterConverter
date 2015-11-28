@@ -13,5 +13,7 @@ namespace NscripterConverter
         public String Pattern;
         //3 tabs
         public String FileName;
+
+        public Effect Effect;
     }
 }

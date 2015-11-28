@@ -12,5 +12,7 @@ namespace NscripterConverter
         public String[] Arg = new String[6];
         public String Text;
         public String PageCtl;
+
+        public Effect Effect;
     }
 }

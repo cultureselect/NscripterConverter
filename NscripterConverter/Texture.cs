@@ -12,5 +12,7 @@ namespace NscripterConverter
         public String Type;
         //Three tabs inbetween
         public String Filename;
+
+        public Effect Effect;
     }
 }

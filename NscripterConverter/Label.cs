@@ -74,6 +74,28 @@ namespace NscripterConverter
                 Unknown.Add((String)obj);
 
         }
+
+        public String GetLastCharacterNameAtPos(string pos)
+        {
+            if (pos.IndexOf("r", StringComparison.OrdinalIgnoreCase) >= 0)
+                pos = "right";
+            else if (pos.IndexOf("c", StringComparison.OrdinalIgnoreCase) >= 0)
+                pos = "center";
+            else
+                pos = "left";
+
+            //we need to find the last Character at the indicated position
+            foreach (Command c in Enumerable.Reverse(Commands))
+            {
+                if (c.Arg[2] == pos)
+                {
+                    return c.Arg[0]; //Character Name
+                }
+
+            }
+
+            throw new Exception("unable to find a Character at " + pos);
+        }
   
     }
 }
