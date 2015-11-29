@@ -163,25 +163,24 @@ namespace NscripterConverter
                     bg.Type = type;
                     bg.Label = fname.Split('.')[0];
 
-                    if (data.Length > 2)
-                        bg.Effect = new Effect(data[1], data[2]);
-                    else if (data.Length > 1)
-                        bg.Effect = new Effect(data[1]);
-
                     curr.AddTo(Label.LabelTypes.Textures, bg);
-
 
                     //Now do the command for it
                     Command bgc = new Command();
                     bgc.Comm = "Bg";
-                    bgc.Arg[0] = bg.Label;
+                    bgc.Arg[0] = fname.Split('.')[0];
+
+                    if (data.Length > 2)
+                        bgc.Effect = new Effect(data[1], data[2]);
+                    else if (data.Length > 1)
+                        bgc.Effect = new Effect(data[1]);
 
                     curr.AddTo(Label.LabelTypes.Commands, bgc);
 
                     //Background commands also clear any existing character sprites
                     Command coff = new Command();
                     coff.Comm = "CharacterOff";
-                    bgc.Arg[0] = ""; //Blank is all characters
+                    coff.Arg[0] = ""; //Blank is all characters
 
                     curr.AddTo(Label.LabelTypes.Commands, coff);
 
@@ -209,11 +208,6 @@ namespace NscripterConverter
                     cl.CharacterName = cname;
                     cl.Pattern = ""; //TODO?: Split Cname into multiple patterns
 
-                    if(data.Length > 3)
-                        cl.Effect = new Effect(data[2], data[3]);
-                    else if(data.Length > 2)
-                        cl.Effect = new Effect(data[2]);
-
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Characters, cl);
 
                     //Now do the command for it
@@ -233,6 +227,11 @@ namespace NscripterConverter
                     {
                         spr.Arg[2] = "left";
                     }
+
+                    if (data.Length > 3)
+                        spr.Effect = new Effect(data[2], data[3]);
+                    else if (data.Length > 2)
+                        spr.Effect = new Effect(data[2]);
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, spr);
                 }
@@ -274,7 +273,7 @@ namespace NscripterConverter
                 else if (line.StartsWith("`"))
                 {
                     //Handle a text command(s)
-                    String[] data = line.Split('@').ToArray();
+                    String[] data = line.Trim('`').Split('@').ToArray();
 
                     foreach (String text in data)
                     {
@@ -290,8 +289,13 @@ namespace NscripterConverter
 
                         if (text.IndexOf("\\") >= 0)
                         {
-                            text.Trim('\\');
+                            nu.Text = text.Trim('\\');
                             nu.PageCtl = "";
+                        }
+                        else if (text.IndexOf("/") >= 0)
+                        {
+                            nu.Text = text.Trim('/');
+                            nu.PageCtl = "Next";
                         }
                         else
                             nu.PageCtl = "Input";
@@ -318,7 +322,9 @@ namespace NscripterConverter
                     String[] data = line.Split(' ').Select(d => d.Trim()).ToArray();
 
                     wait.Comm = "Wait";
-                    wait.Arg[5] = (Int32.Parse(data[1]) / 1000).ToString(); //converts milliseconds to seconds
+                    wait.Arg[5] = (Single.Parse(data[1]) / 1000f).ToString(); //converts milliseconds to seconds
+
+                    wait.PageCtl = "Next";
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, wait);
                 }
@@ -338,7 +344,7 @@ namespace NscripterConverter
                         exargs[1] = data[2];
                     }
 
-                    String param = "time=" + (Int32.Parse(exargs[1]) / 1000).ToString() + " "; //Convert milliseconds to seconds
+                    String param = "time=" + (Single.Parse(exargs[1]) / 1000f).ToString() + " "; //Convert milliseconds to seconds
                     if (data[0].IndexOf("x", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         param += "x=" + (10 * Int32.Parse(exargs[0])).ToString() + " ";

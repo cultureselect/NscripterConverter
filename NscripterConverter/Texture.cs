@@ -13,13 +13,9 @@ namespace NscripterConverter
         //Three tabs inbetween
         public String Filename;
 
-        public Effect Effect;
-
-        public String ToString()
+        public override String ToString()
         {
-            return Label + "\t" + Type + "\t" + "\t\t\t" + Filename + "\t\t\t\t\t\t" + Effect.ToString();
-
-
+            return Label + "\t" + Type + "\t" + "\t\t\t" + Filename;
         }
     }
 }

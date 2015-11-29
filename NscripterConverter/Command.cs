@@ -9,9 +9,10 @@ namespace NscripterConverter
     class Command
     {
         public String Comm;
-        public String[] Arg = new String[6];
         public String Text;
         public String PageCtl;
+
+        public String[] Arg = new String[6];
 
         public Effect Effect;
 

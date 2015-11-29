@@ -14,12 +14,9 @@ namespace NscripterConverter
         //3 tabs
         public String FileName;
 
-        public Effect Effect;
-
-
         public override String ToString()
         {
-            return CharacterName + "\t" + "\t" + Pattern + "\t" + "\t\t\t" + FileName + "\t" + "\t\t" + Effect;
+            return CharacterName + "\t" + "\t" + Pattern + "\t" + "\t\t\t" + FileName;
         }
 
 
