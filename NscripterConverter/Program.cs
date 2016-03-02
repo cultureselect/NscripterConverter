@@ -302,6 +302,12 @@ namespace NscripterConverter
 
                         curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, nu);
                     }
+                    //at the VERY END we want to add a BR since that's how Nscripter does it
+                    Command br = new Command();
+                    br.Comm = "";
+                    br.PageCtl = "InputBr";
+
+                    curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, br);
                 }
                 else if (line.StartsWith("monocro", StringComparison.OrdinalIgnoreCase))
                 {
@@ -336,7 +342,7 @@ namespace NscripterConverter
                     String[] exargs = data[1].Split(',').Select(d => d.Trim()).ToArray();
 
                     quake.Comm = "Shake";
-                    quake.Arg[1] = "Graphics";
+                    quake.Arg[0] = "Graphics"; //ARG1
 
                     if (data.Length == 3) //annoying space threw off the parser
                     {
@@ -359,7 +365,7 @@ namespace NscripterConverter
                         param += "y=" + (10 * Int32.Parse(exargs[0])).ToString() + " ";
                     }
 
-                    quake.Arg[3] = param;
+                    quake.Arg[2] = param; //ARG3
                     quake.Arg[5] = ""; //blank on purpose
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, quake);

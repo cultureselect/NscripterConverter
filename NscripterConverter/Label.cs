@@ -112,7 +112,7 @@ namespace NscripterConverter
             if (sb.Length > 0)
             {
                 wrote = true;
-                File.WriteAllText(dir + "/Characters.tsv", sb.ToString());
+                File.WriteAllText(dir + "/Characters.tsv", sb.ToString(), Encoding.UTF8);
             }
 
             sb.Clear();
@@ -122,7 +122,7 @@ namespace NscripterConverter
             if (sb.Length > 0)
             {
                 wrote = true;
-                File.WriteAllText(dir + "/Commands.tsv", sb.ToString());
+                File.WriteAllText(dir + "/Commands.tsv", sb.ToString(), Encoding.UTF8);
             }
 
             sb.Clear();
@@ -132,7 +132,7 @@ namespace NscripterConverter
             if (sb.Length > 0)
             {
                 wrote = true;
-                File.WriteAllText(dir + "/Sounds.tsv", sb.ToString());
+                File.WriteAllText(dir + "/Sounds.tsv", sb.ToString(), Encoding.UTF8);
             }
 
             sb.Clear();
@@ -142,7 +142,7 @@ namespace NscripterConverter
             if (sb.Length > 0)
             {
                 wrote = true;
-                File.WriteAllText(dir + "/Textures.tsv", sb.ToString());
+                File.WriteAllText(dir + "/Textures.tsv", sb.ToString(), Encoding.UTF8);
             }
 
             return wrote;
