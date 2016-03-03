@@ -12,10 +12,10 @@ namespace NscripterConverter
         static void Main(string[] args)
         {
             //EN
-            String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\0.txt", Encoding.Default);
+            //String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\0.txt", Encoding.Default);
 
             //ES
-            //String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\Wish_1P_Trans_20151012_Spanish Translation_UTF8.txt", Encoding.UTF8);
+            String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\Wish_1P_Trans_20151012_Spanish Translation_UTF8.txt", Encoding.UTF8);
 
             List<Label> Labels = new List<Label>();
 
@@ -34,6 +34,8 @@ namespace NscripterConverter
                     curr.Name = line.Substring(1);
                     continue;
                 }
+
+                
 
                 if (curr == null)
                     throw new Exception("wtf?");
@@ -165,10 +167,26 @@ namespace NscripterConverter
 
                     curr.AddTo(Label.LabelTypes.Textures, bg);
 
+                    //Background commands also clear any existing character sprites
+                    Command coff = new Command();
+                    coff.Comm = "CharacterOff";
+                    coff.Arg[0] = ""; //Blank is all characters
+                    coff.PageCtl = "Next";
+
+                    curr.AddTo(Label.LabelTypes.Commands, coff);
+
+                    //They also remove any text, so page break
+                    Command br = new Command();
+                    br.Comm = "";
+                    br.PageCtl = "Next";
+
+                    curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, br);
+
                     //Now do the command for it
                     Command bgc = new Command();
                     bgc.Comm = "Bg";
                     bgc.Arg[0] = fname.Split('.')[0];
+                    bgc.PageCtl = "Next";
 
                     if (data.Length > 2)
                         bgc.Effect = new Effect(data[1], data[2]);
@@ -177,13 +195,7 @@ namespace NscripterConverter
 
                     curr.AddTo(Label.LabelTypes.Commands, bgc);
 
-                    //Background commands also clear any existing character sprites
-                    Command coff = new Command();
-                    coff.Comm = "CharacterOff";
-                    coff.Arg[0] = ""; //Blank is all characters
-
-                    curr.AddTo(Label.LabelTypes.Commands, coff);
-
+                    
                 }
                 else if (line.StartsWith("stop", StringComparison.OrdinalIgnoreCase))
                 { 
@@ -275,6 +287,7 @@ namespace NscripterConverter
                     //Handle a text command(s)
                     String[] data = line.Trim('`').Split('@').ToArray();
 
+                    bool forcenext = false;
                     foreach (String text in data)
                     {
                        if(text.Trim().Length == 0)
@@ -283,31 +296,41 @@ namespace NscripterConverter
                         Command nu = new Command();
                         nu.Comm = "";
                         if (TextColor != null)
-                            nu.Text = "<color=" + TextColor + "ff>" + text;
+                        {
+                            nu.Text = "<color=" + TextColor + "ff>" + text + "</color>";
+                            //Console.WriteLine("Coloring line " + text);
+                        }
                         else
                             nu.Text = text;
 
                         if (text.IndexOf("\\") >= 0)
                         {
-                            nu.Text = text.Trim('\\');
+                            nu.Text = nu.Text.Trim('\\');
                             nu.PageCtl = "";
                         }
                         else if (text.IndexOf("/") >= 0)
                         {
-                            nu.Text = text.Trim('/');
+                            nu.Text = nu.Text.Trim('/');
                             nu.PageCtl = "Next";
+                            forcenext = true;
                         }
                         else
                             nu.PageCtl = "Input";
 
                         curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, nu);
                     }
-                    //at the VERY END we want to add a BR since that's how Nscripter does it
-                    Command br = new Command();
-                    br.Comm = "";
-                    br.PageCtl = "InputBr";
 
-                    curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, br);
+                    TextColor = null; //FTFM - "Note that this only changes the next text display, and not any of the ones before or after, so be careful."
+
+                    if (!forcenext)
+                    {
+                        //at the VERY END we want to add a BR since that's how Nscripter does it
+                        Command br = new Command();
+                        br.Comm = "";
+                        br.PageCtl = "InputBr";
+
+                        curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, br);
+                    }
                 }
                 else if (line.StartsWith("monocro", StringComparison.OrdinalIgnoreCase))
                 {
@@ -383,6 +406,7 @@ namespace NscripterConverter
                 {
                     //Change the color of the next text command
                     TextColor = line;
+                    //Console.WriteLine("Next line is colored " + line);
                 }
                 else if (line.StartsWith("@"))
                 {
@@ -393,15 +417,15 @@ namespace NscripterConverter
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, com);
                 }
-                else if (line.StartsWith("\\"))
+                else if (line.StartsWith(@"\"))
                 {
                     //Handle end-of-page wait
                     Command com = new Command();
                     com.Comm = "";
+                    com.Text = " "; //Appears to be required as the whole "row" can't be blank
                     com.PageCtl = "";
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, com);
-
                 }
                 else
                 {
@@ -409,6 +433,9 @@ namespace NscripterConverter
                     Console.WriteLine(line);
                 }
             }
+
+            if (curr != null) //Add in our last label you IMBECILE
+                Labels.Add(curr);
 
             //Now that our labels are full of information, write a folder for each one
             Console.Write(Effect.getTotalCalls());
