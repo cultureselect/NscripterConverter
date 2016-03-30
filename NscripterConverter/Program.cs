@@ -244,8 +244,6 @@ namespace NscripterConverter
                     spr.Arg[0] = cname;
                     if (data[0].IndexOf("r", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
-                        spr.Arg[2] = "right";
-
                         curr.Right = true;
 
                         CLayer.LayerType = Layer.LayerTypes.Right;
@@ -254,18 +252,13 @@ namespace NscripterConverter
                     }
                     else if (data[0].IndexOf("c", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
-                        spr.Arg[2] = "center";
-
                         curr.Center = true;
-
-
+                        
                         CLayer.LayerType = Layer.LayerTypes.Center;
                         CLayer.x = "0";
                     }
                     else
                     {
-                        spr.Arg[2] = "left";
-
                         curr.Left = true;
 
                         CLayer.LayerType = Layer.LayerTypes.Left;
@@ -276,6 +269,8 @@ namespace NscripterConverter
                         spr.Effect = new Effect(data[2], data[3]);
                     else if (data.Length > 2)
                         spr.Effect = new Effect(data[2]);
+
+                    spr.Arg[2] = CLayer.getLayerName();
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, spr);
                     
