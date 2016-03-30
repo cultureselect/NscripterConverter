@@ -12,16 +12,16 @@ namespace NscripterConverter
         static void Main(string[] args)
         {
             //EN
-            //String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\0.txt", Encoding.Default);
+            String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\0.txt", Encoding.Default);
 
             //ES
-            String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\Wish_1P_Trans_20151012_Spanish Translation_UTF8.txt", Encoding.UTF8);
+            //String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\Wish_1P_Trans_20151012_Spanish Translation_UTF8.txt", Encoding.UTF8);
 
             List<Label> Labels = new List<Label>();
 
             Label curr = null;
-
             String TextColor = null;
+
 
             foreach (String line in lines)
             {
@@ -175,6 +175,8 @@ namespace NscripterConverter
 
                     curr.AddTo(Label.LabelTypes.Commands, coff);
 
+                    curr.resetSides();
+
                     //They also remove any text, so page break
                     Command br = new Command();
                     br.Comm = "";
@@ -222,6 +224,19 @@ namespace NscripterConverter
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Characters, cl);
 
+                    //Get the Layer Ready
+                    Layer CLayer = new Layer();
+                    CLayer.CharacterName = cname;
+
+                    //Set this up BEFORE we add the command so we don't blow away the character right after showing them!
+                    Command coff = new Command();
+                    coff.Comm = "CharacterOff";
+                    coff.Arg[0] = curr.GetLastCharacterNameAtPos(data[0]);
+
+                    //Character Off previous CHARACTER BEFORE adding the layer later on...
+                    if (!curr.isEmptySide(data[0])) 
+                        curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, coff);
+
                     //Now do the command for it
                     Command spr = new Command();
 
@@ -230,14 +245,31 @@ namespace NscripterConverter
                     if (data[0].IndexOf("r", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         spr.Arg[2] = "right";
+
+                        curr.Right = true;
+
+                        CLayer.LayerType = Layer.LayerTypes.Right;
+                        CLayer.x = "500";
+
                     }
                     else if (data[0].IndexOf("c", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         spr.Arg[2] = "center";
+
+                        curr.Center = true;
+
+
+                        CLayer.LayerType = Layer.LayerTypes.Center;
+                        CLayer.x = "0";
                     }
                     else
                     {
                         spr.Arg[2] = "left";
+
+                        curr.Left = true;
+
+                        CLayer.LayerType = Layer.LayerTypes.Left;
+                        CLayer.x = "-500";
                     }
 
                     if (data.Length > 3)
@@ -246,6 +278,10 @@ namespace NscripterConverter
                         spr.Effect = new Effect(data[2]);
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, spr);
+                    
+                    curr.AddTo(NscripterConverter.Label.LabelTypes.Layers, CLayer);
+
+
                 }
                 else if(line.StartsWith("click"))
                 {
@@ -279,6 +315,8 @@ namespace NscripterConverter
                         cl.Effect = new Effect(data[1]);
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, cl);
+
+                    curr.resetSides(); 
                    
 
                 }

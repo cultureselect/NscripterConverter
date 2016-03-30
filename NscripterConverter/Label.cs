@@ -11,14 +11,17 @@ namespace NscripterConverter
     {
         public string Name;
 
-        public enum LabelTypes { Characters, Textures, Sounds, Commands }
+        public enum LabelTypes { Characters, Textures, Sounds, Commands, Layers }
 
         protected List<Character> Characters = new List<Character>();
         protected List<Texture> Textures = new List<Texture>();
         protected List<Sound> Sounds = new List<Sound>();
         protected List<Command> Commands = new List<Command>();
+        protected List<Layer> Layers = new List<Layer>();
 
         protected List<String> Unknown = new List<String>();
+
+        public bool Left = false, Center = false, Right = false;
 
         public void AddTo(LabelTypes type, Object obj)
         {
@@ -69,12 +72,43 @@ namespace NscripterConverter
                 if (!found)
                     Sounds.Add(s);
             }
+            else if (type == LabelTypes.Layers)
+            {
+                Layer l = (Layer)obj;
+                bool found = false;
+                foreach (Layer lo in Layers)
+                {
+                    if (lo.getLayerName() == l.getLayerName())
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    Layers.Add(l);
+            }
             else if (type == LabelTypes.Commands)
                 Commands.Add((Command)obj);
             else
                 Unknown.Add((String)obj);
 
         }
+
+        public bool isEmptySide(string pos)
+        {
+            if (pos.IndexOf("r", StringComparison.OrdinalIgnoreCase) >= 0)
+                return !Right;
+            else if (pos.IndexOf("c", StringComparison.OrdinalIgnoreCase) >= 0)
+                return !Center;
+            else
+                return !Left;
+        }
+
+        public void resetSides()
+        {
+            Right = Center = Left = false;
+        }
+
 
         public String GetLastCharacterNameAtPos(string pos)
         {
@@ -95,7 +129,7 @@ namespace NscripterConverter
 
             }
 
-            throw new Exception("unable to find a Character at " + pos);
+            return null;
         }
 
         public bool writeFiles(String dir)
@@ -106,6 +140,7 @@ namespace NscripterConverter
             Characters = Characters.OrderBy(Ch => Ch.FileName).ToList();
             Sounds = Sounds.OrderBy(So => So.FileName).ToList();
             Textures = Textures.OrderBy(Te => Te.Filename).ToList();
+            Layers = Layers.OrderBy(Lo => Lo.getLayerName()).ToList();
 
             foreach (Character c in Characters)
                 sb.Append(c.ToString()).Append("\n");
@@ -143,6 +178,16 @@ namespace NscripterConverter
             {
                 wrote = true;
                 File.WriteAllText(dir + "/Textures.tsv", sb.ToString(), Encoding.UTF8);
+            }
+
+            sb.Clear();
+
+            foreach (Layer l in Layers)
+                sb.Append(l.ToString()).Append("\n");
+            if (sb.Length > 0)
+            {
+                wrote = true;
+                File.WriteAllText(dir + "/Layers.tsv", sb.ToString(), Encoding.UTF8);
             }
 
             return wrote;
