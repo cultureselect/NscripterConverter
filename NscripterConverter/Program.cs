@@ -27,21 +27,32 @@ namespace NscripterConverter
             {
                 if (line.StartsWith("*"))
                 {
-                    //Create a new Label and push the current label into the Labels list
-                    if (curr != null) //no label no add
+                    if (curr != null) //If the current label is not null make a pointer to the next label and add the current label
+                    {
+                        //make a jump command to the next label
+                        Command jump = new Command();
+                        jump.Comm = "Jump";
+                        jump.Arg[0] = "*" + line.Substring(1);
+
+                        curr.AddTo(Label.LabelTypes.Commands, jump);
+
+                        //push the current label into the Labels list
                         Labels.Add(curr);
+
+                    }
+
+                    //otherwise we have our first label 
                     curr = new Label();
                     curr.Name = line.Substring(1);
                     continue;
                 }
 
-                
 
                 if (curr == null)
-                    throw new Exception("wtf?");
+                    throw new Exception("Trying to process commands without a label? That's a spanking");
 
                 if (line.Trim().Length == 0)
-                    continue;
+                    continue; 
 
                 //okay let's go down and check everything!
 
@@ -471,14 +482,14 @@ namespace NscripterConverter
                 Labels.Add(curr);
 
             //Now that our labels are full of information, write a folder for each one
-            Console.Write(Effect.getTotalCalls());
+            Console.WriteLine(Effect.getTotalCalls());
             Console.Beep();
             Console.WriteLine("All Done!");
             Console.ReadKey();
             Console.WriteLine("Preparing to dump...");
             Console.Beep();
 
-            String dir = @"C:\Users\Rob\Desktop\Wish Conversion\Test1\";
+            String dir = @"C:\Users\Rob\Desktop\Wish Conversion\Test1_es\";
 
             foreach (Label lab in Labels)
             {

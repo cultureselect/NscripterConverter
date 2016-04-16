@@ -85,16 +85,7 @@ namespace NscripterConverter
         public override String ToString()
         {
             StringBuilder sb = new StringBuilder();
-            if (Number != -1)
-                sb.Append("Effect Command #" + Number);
-            else
-                sb.Append("(Effect: ");
-            sb.Append(" Index #" + Index + " " + Runtime + "ms");
-            if (PatternFileName != null)
-                sb.Append(" Pattern: " + PatternFileName);
-
-            if (Number == -1)
-                sb.Append(")");
+            sb.Append(Number).Append("\t").Append(Runtime);
 
             return sb.ToString();
         }
