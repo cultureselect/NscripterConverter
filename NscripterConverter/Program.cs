@@ -432,7 +432,7 @@ namespace NscripterConverter
                         param += "y=" + (10 * Int32.Parse(exargs[0])).ToString() + " ";
                     }
 
-                    quake.Arg[2] = param; //ARG3
+                    quake.Arg[2] = param.TrimEnd(); //ARG3
                     quake.Arg[5] = ""; //blank on purpose
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, quake);
