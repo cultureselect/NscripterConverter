@@ -66,7 +66,6 @@ namespace NscripterConverter
             }
 
             int runt = Int32.Parse(data[1]);
-
             String pfn = null;
             try
             {
@@ -78,14 +77,14 @@ namespace NscripterConverter
             Number = -1;
             Index = ei;
             Runtime = runt;
-            PatternFileName = null;
+            PatternFileName = pfn;
 
         }
 
         public override String ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(Number).Append("\t").Append(Runtime);
+            sb.Append(Index).Append("\t").Append(Runtime);
 
             return sb.ToString();
         }

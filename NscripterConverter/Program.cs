@@ -331,7 +331,8 @@ namespace NscripterConverter
                     //Handle a text command(s)
                     String[] data = line.Trim('`').Split('@').ToArray();
 
-                    bool forcenext = false;
+                    bool skipbr = false;
+                    String last = data.Last();
                     foreach (String text in data)
                     {
                        if(text.Trim().Length == 0)
@@ -339,39 +340,42 @@ namespace NscripterConverter
 
                         Command nu = new Command();
                         nu.Comm = "";
-                        if (TextColor != null)
-                        {
-                            nu.Text = "<color=" + TextColor + "ff>" + text + "</color>";
-                            //Console.WriteLine("Coloring line " + text);
-                        }
-                        else
-                            nu.Text = text;
 
                         if (text.IndexOf("\\") >= 0)
                         {
-                            nu.Text = nu.Text.Trim('\\');
+                            nu.Text = text.Trim('\\');
                             nu.PageCtl = "";
+                            skipbr = true;
                         }
                         else if (text.IndexOf("/") >= 0)
                         {
-                            nu.Text = nu.Text.Trim('/');
+                            nu.Text = text.Trim('/');
                             nu.PageCtl = "Next";
-                            forcenext = true;
+                            skipbr = true;
                         }
                         else
+                        {
+                            nu.Text = text;
                             nu.PageCtl = "Input";
+                        }
+
+                        //Do this after we trim anything, otherwise we don't trim stuff properly. That's what trim means you idiot
+                        if (TextColor != null)
+                        {
+                            nu.Text = "<color=" + TextColor + "ff>" + nu.Text + "</color>";
+                        }
 
                         curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, nu);
                     }
 
                     TextColor = null; //FTFM - "Note that this only changes the next text display, and not any of the ones before or after, so be careful."
 
-                    if (!forcenext)
+                    if (!skipbr)
                     {
                         //at the VERY END we want to add a BR since that's how Nscripter does it
                         Command br = new Command();
                         br.Comm = "";
-                        br.PageCtl = "InputBr";
+                        br.PageCtl = "Br"; //NOT InputBr because that requires a click!
 
                         curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, br);
                     }
@@ -440,9 +444,10 @@ namespace NscripterConverter
                 else if (line.StartsWith("br", StringComparison.OrdinalIgnoreCase))
                 {
                     //Handle linefeed command
+    
                     Command br = new Command();
                     br.Comm = "";
-                    br.PageCtl = "InputBr";
+                    br.PageCtl = "Br"; //NOT InputBr because that requires a click!
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, br);
                 }
@@ -489,7 +494,7 @@ namespace NscripterConverter
             Console.WriteLine("Preparing to dump...");
             Console.Beep();
 
-            String dir = @"C:\Users\Rob\Desktop\Wish Conversion\Test1_es\";
+            String dir = @"C:\Users\Rob\Desktop\Wish Conversion\Test1\";
 
             foreach (Label lab in Labels)
             {
