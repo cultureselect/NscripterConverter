@@ -12,7 +12,7 @@ namespace NscripterConverter
         static void Main(string[] args)
         {
             //EN
-            String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\0.txt", Encoding.Default);
+            String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\Wist1stEN.txt", Encoding.UTF8);
 
             //ES
             //String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\Wish_1P_Trans_20151012_Spanish Translation_UTF8.txt", Encoding.UTF8);
@@ -21,7 +21,11 @@ namespace NscripterConverter
 
             Label curr = null;
             String TextColor = null;
-
+            bool blit = false;
+            String blitcname = "";
+            String blitfname = "";
+            String blitwait = "";
+            String[] locate = new String[2];
 
             foreach (String line in lines)
             {
@@ -123,12 +127,13 @@ namespace NscripterConverter
                     //TODO?
                     throw new Exception("Not implemented!");
                 }
-                else if (line.StartsWith("bgm", StringComparison.OrdinalIgnoreCase) && !line.StartsWith("bgmloop", StringComparison.OrdinalIgnoreCase))
+                else if ( (line.StartsWith("bgm", StringComparison.OrdinalIgnoreCase) && !line.StartsWith("bgmloop", StringComparison.OrdinalIgnoreCase)) ||
+                          (line.StartsWith("mp3", StringComparison.OrdinalIgnoreCase)))
                 {
                     //Handle a BGM
                     Sound sd = new Sound();
                     String tline = line;
-                    if (line.StartsWith("bgm\"", StringComparison.OrdinalIgnoreCase))
+                    if (line.StartsWith("bgm\"", StringComparison.OrdinalIgnoreCase) || line.StartsWith("mp3\"", StringComparison.OrdinalIgnoreCase))
                     {
                         tline = line.Substring(0, 3) + " \"" + line.Substring(4);
                     }
@@ -214,11 +219,9 @@ namespace NscripterConverter
                 { 
                     //Handle a command to stop all sound
                     Command ws = new Command();
-
                     ws.Comm = "StopSound";
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, ws);
-
                 }
                 else if (line.StartsWith("ld"))
                 {
@@ -319,24 +322,50 @@ namespace NscripterConverter
                         cl.Effect = new Effect(data[1], data[2]);
                     else if (data.Length > 1)
                         cl.Effect = new Effect(data[1]);
+                    else
+                        throw new Exception("...?");
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, cl);
 
                     curr.resetSides(); 
-                   
+                }
+                else if (line.StartsWith("locate", StringComparison.OrdinalIgnoreCase))
+                {
+                    String[] data = line.Trim(' ').Split(' ').ToArray();
+                    data = data[1].Split(',');
 
+                    locate[0] = data[0]; //x
+                    locate[1] = data[1]; //y
                 }
                 else if (line.StartsWith("`"))
                 {
                     //Handle a text command(s)
                     String[] data = line.Trim('`').Split('@').ToArray();
+                    if (locate[0] != null)
+                    {
+                        //locate means we need to set up where the text goes ahead of time
+                        for (int i = 0; i < int.Parse(locate[0]); i++) //newlines
+                        {
+                            Command br = new Command();
+                            br.Comm = "";
+                            br.PageCtl = "Br"; //NOT InputBr because that requires a click!
+
+                            curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, br);
+                        }
+
+                        //append some space, yo
+                        data[0] = new string(' ', int.Parse(locate[1])) + data[0];
+
+                        locate = new String[2]; //blow it away so we don't repeat this
+                    }
+                  
 
                     bool skipbr = false;
                     String last = data.Last();
                     foreach (String text in data)
                     {
-                       if(text.Trim().Length == 0)
-                           continue; //ignore whitespace junk
+                        if (text.Trim().Length == 0)
+                            continue; //ignore whitespace junk
 
                         Command nu = new Command();
                         nu.Comm = "";
@@ -405,6 +434,18 @@ namespace NscripterConverter
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, wait);
                 }
+                else if (line.StartsWith("!w", StringComparison.OrdinalIgnoreCase))
+                {
+                    //Handle a wait command
+                    Command wait = new Command();
+                    String data = line.Substring(2);
+                    wait.Comm = "Wait";
+                    wait.Arg[5] = (Single.Parse(data) / 1000f).ToString(); //converts milliseconds to seconds
+
+                    wait.PageCtl = "Next";
+
+                    curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, wait);
+                }
                 else if (line.StartsWith("quake", StringComparison.OrdinalIgnoreCase))
                 {
                     //Handle a quake command. TODO: Revisit this after testing
@@ -441,10 +482,27 @@ namespace NscripterConverter
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, quake);
                 }
+                else if (line.StartsWith("btndef", StringComparison.OrdinalIgnoreCase))
+                {
+                    //Handle btndef blit crap
+                    blit = true;
+
+                    String[] data = line.Split(' ').Select(d => d.Trim(new Char[] { ' ', '"' })).ToArray();
+
+                    blitfname = data[1].Substring(data[1].LastIndexOf("\\") + 1);
+                    blitcname = blitfname.Split('.')[0];
+
+                    //Get the Layer Ready
+                    Layer CLayer = new Layer();
+                    CLayer.CharacterName = "blt";
+                    CLayer.order = "10"; //blt is higher than everything else so it overlays on top
+
+                    curr.AddTo(NscripterConverter.Label.LabelTypes.Layers, CLayer);
+                }
                 else if (line.StartsWith("br", StringComparison.OrdinalIgnoreCase))
                 {
                     //Handle linefeed command
-    
+
                     Command br = new Command();
                     br.Comm = "";
                     br.PageCtl = "Br"; //NOT InputBr because that requires a click!
@@ -476,10 +534,57 @@ namespace NscripterConverter
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, com);
                 }
+                else if (line.StartsWith("ofscpy", StringComparison.OrdinalIgnoreCase))
+                {
+                    //Do our blit commands
+                    if (blit == false || blitcname == "" || blitfname == "" || blitwait == "")
+                        throw new Exception("Blit flags are not properly set but we tried to ofscpy the blit!");
+
+                    //Now do the commands for it
+                    for (int i = 0; i < 6; i++)
+                    {
+                        Character cl = new Character();
+                        cl.FileName = blitfname + "_" + i;
+                        cl.CharacterName = blitcname + "_" + i;
+                        cl.Pattern = "";
+
+                        curr.AddTo(NscripterConverter.Label.LabelTypes.Characters, cl);
+
+                        Command spr = new Command();
+                        spr.Comm = "";
+                        spr.Arg[0] = blitcname + "_" + i;
+                        spr.Arg[2] = "blt";
+
+                        curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, spr);
+
+                        Command wait = new Command();
+                        wait.Comm = "Wait";
+                        wait.Arg[5] = (Single.Parse(blitwait) / 1000f).ToString(); //converts milliseconds to seconds
+                        wait.PageCtl = "Next";
+                        curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, wait);
+                    }
+
+                    //clear blitflags
+                    blit = false;
+                    blitcname = "";
+                    blitfname = "";
+                    blitwait = "";
+                }
+                else if (blit)
+                {
+                    //If we're in blt mode we need to trim some stuff from the line and then check it
+                    String temp = line.Replace('\t', ' ').Trim();
+
+                    if (temp.StartsWith("wait", StringComparison.OrdinalIgnoreCase))
+                    {
+                        String[] data = temp.Split(' ').Select(d => d.Trim()).ToArray();
+                        blitwait = data[1];
+                    }
+                }
                 else
                 {
-                    //Handle something else that is probably not needed but probably will end up being useful
-                    Console.WriteLine(line);
+                    //Handle something else that is probably not needed but probably will end up being useful to know later Kappa
+                    Console.WriteLine(curr.Name + ": " + line);
                 }
             }
 
@@ -494,7 +599,7 @@ namespace NscripterConverter
             Console.WriteLine("Preparing to dump...");
             Console.Beep();
 
-            String dir = @"C:\Users\Rob\Desktop\Wish Conversion\Test1\";
+            String dir = @"C:\Users\Rob\Desktop\Wish_FULL\Explode\";
 
             foreach (Label lab in Labels)
             {

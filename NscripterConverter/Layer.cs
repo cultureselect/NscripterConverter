@@ -19,17 +19,19 @@ namespace NscripterConverter
 
         public String getLayerName()
         {
-            return getLayerTypeName() + "_" + CharacterName;
+            return getLayerTypeName() + CharacterName;
         }
 
         private String getLayerTypeName()
         {
             if (LayerType == LayerTypes.Left)
-                return "Left";
+                return "Left_";
             else if (LayerType == LayerTypes.Center)
-                return "Center";
+                return "Center_";
+            else if (LayerType == LayerTypes.Right)
+                return "Right_";
             else
-                return "Right";
+                return "";
         }
 
         public override String ToString()

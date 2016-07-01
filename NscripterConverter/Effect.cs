@@ -74,6 +74,9 @@ namespace NscripterConverter
             catch (Exception e)
             { }; //don't care
 
+            if (pfn != null)
+                throw new Exception("..hey-");
+
             Number = -1;
             Index = ei;
             Runtime = runt;
@@ -92,7 +95,7 @@ namespace NscripterConverter
         public static String getTotalCalls()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("Total Effect Calls:");
+            sb.Append("Total Effect Calls:\n");
             for (int i = 0; i < TOTAL_CALLS.Length; i++)
                 sb.Append(i + ": " + TOTAL_CALLS[i] + "\n");
 
