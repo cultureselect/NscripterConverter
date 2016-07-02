@@ -12,7 +12,7 @@ namespace NscripterConverter
         static void Main(string[] args)
         {
             //EN
-            String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\Wist1stEN.txt", Encoding.UTF8);
+            String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish_FULL\Wish1st_EN.txt", Encoding.UTF8);
 
             //ES
             //String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\Wish_1P_Trans_20151012_Spanish Translation_UTF8.txt", Encoding.UTF8);
@@ -128,7 +128,7 @@ namespace NscripterConverter
                     throw new Exception("Not implemented!");
                 }
                 else if ( (line.StartsWith("bgm", StringComparison.OrdinalIgnoreCase) && !line.StartsWith("bgmloop", StringComparison.OrdinalIgnoreCase)) ||
-                          (line.StartsWith("mp3", StringComparison.OrdinalIgnoreCase)))
+                          (line.StartsWith("mp3", StringComparison.OrdinalIgnoreCase) && !line.StartsWith("mp3loop", StringComparison.OrdinalIgnoreCase)))
                 {
                     //Handle a BGM
                     Sound sd = new Sound();
@@ -551,9 +551,10 @@ namespace NscripterConverter
                         curr.AddTo(NscripterConverter.Label.LabelTypes.Characters, cl);
 
                         Command spr = new Command();
-                        spr.Comm = "";
+                        spr.Comm = "Sprite";
                         spr.Arg[0] = blitcname + "_" + i;
                         spr.Arg[2] = "blt";
+                        spr.Effect = new Effect("1", "");
 
                         curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, spr);
 
