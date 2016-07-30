@@ -12,7 +12,7 @@ namespace NscripterConverter
         static void Main(string[] args)
         {
             //EN
-            String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish_FULL\Wish1st_EN.txt", Encoding.UTF8);
+            String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish_FULL\Wish1st_ES.txt", Encoding.UTF8);
 
             //ES
             //String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\Wish_1P_Trans_20151012_Spanish Translation_UTF8.txt", Encoding.UTF8);
@@ -565,6 +565,13 @@ namespace NscripterConverter
                         curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, wait);
                     }
 
+                    //Finally write a SpriteOff command to remove all sprites
+                    Command sproff = new Command();
+                    sproff.Comm = "SpriteOff";
+                    sproff.Arg[5] = "0";
+                    sproff.PageCtl = "Next";
+                    curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, sproff);
+
                     //clear blitflags
                     blit = false;
                     blitcname = "";
@@ -573,7 +580,7 @@ namespace NscripterConverter
                 }
                 else if (blit)
                 {
-                    //If we're in blt mode we need to trim some stuff from the line and then check it
+                    //If we're in blt mode we need to trim some stuff from the line and then check it for the wait time
                     String temp = line.Replace('\t', ' ').Trim();
 
                     if (temp.StartsWith("wait", StringComparison.OrdinalIgnoreCase))
@@ -600,7 +607,7 @@ namespace NscripterConverter
             Console.WriteLine("Preparing to dump...");
             Console.Beep();
 
-            String dir = @"C:\Users\Rob\Desktop\Wish_FULL\Explode\";
+            String dir = @"C:\Users\Rob\Desktop\Wish_FULL\Explode_ES\";
 
             foreach (Label lab in Labels)
             {
