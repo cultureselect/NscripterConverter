@@ -23,6 +23,15 @@ namespace NscripterConverter
 
         public bool Left = false, Center = false, Right = false;
 
+        private bool debug = false;
+
+        public Label() { }
+
+        public Label(bool debug)
+        {
+            this.debug = debug;
+        }
+
         public void AddTo(LabelTypes type, Object obj)
         {
             if (type == LabelTypes.Characters)
@@ -151,9 +160,32 @@ namespace NscripterConverter
             }
 
             sb.Clear();
-           
-            foreach (Command c in Commands)
-                sb.Append(c.ToString()).Append("\n");
+
+            if (debug)
+            {
+                Command cl = new Command();
+                cl.Comm = "CharacterOff";
+                cl.Arg[0] = "";
+                cl.Effect = new Effect("1");
+
+                Command wait = new Command();
+
+                wait.Comm = "";
+                wait.PageCtl = "Input";
+
+                foreach (Command c in Commands)
+                {
+                    sb.Append(c.ToString()).Append("\n");
+                    sb.Append(wait.ToString()).Append("\n");
+                    sb.Append(cl.ToString()).Append("\n");
+                    
+                }
+            }
+            else
+            {
+                foreach (Command c in Commands)
+                    sb.Append(c.ToString()).Append("\n");
+            }
             if (sb.Length > 0)
             {
                 wrote = true;

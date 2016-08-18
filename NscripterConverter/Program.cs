@@ -27,6 +27,8 @@ namespace NscripterConverter
             String blitwait = "";
             String[] locate = new String[2];
 
+            Label debug = new Label(true);
+
             foreach (String line in lines)
             {
                 if (line.StartsWith("*"))
@@ -36,7 +38,8 @@ namespace NscripterConverter
                         //make a jump command to the next label
                         Command jump = new Command();
                         jump.Comm = "Jump";
-                        jump.Arg[0] = "*" + line.Substring(1);
+                        //jump.Arg[0] = "*" + line.Substring(1);
+                        jump.Arg[0] = "*Start";
 
                         curr.AddTo(Label.LabelTypes.Commands, jump);
 
@@ -287,9 +290,11 @@ namespace NscripterConverter
                     spr.Arg[2] = CLayer.getLayerName();
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, spr);
-                    
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Layers, CLayer);
 
+                    //throw into debug
+                    debug.AddTo(NscripterConverter.Label.LabelTypes.Commands, spr);
+                    //debug.AddTo(NscripterConverter.Label.LabelTypes.Layers, CLayer);
 
                 }
                 else if(line.StartsWith("click"))
@@ -326,8 +331,8 @@ namespace NscripterConverter
                         throw new Exception("...?");
 
                     curr.AddTo(NscripterConverter.Label.LabelTypes.Commands, cl);
+                    curr.resetSides();
 
-                    curr.resetSides(); 
                 }
                 else if (line.StartsWith("locate", StringComparison.OrdinalIgnoreCase))
                 {
@@ -607,7 +612,8 @@ namespace NscripterConverter
             Console.WriteLine("Preparing to dump...");
             Console.Beep();
 
-            String dir = @"C:\Users\Rob\Desktop\Wish_FULL\Explode_ES\";
+            String dir = @"C:\Users\Rob\Desktop\Wish_FULL\Explode\";
+            //String dir = @"C:\Users\Rob\Desktop\Wish_FULL\Explode_ES\";
 
             foreach (Label lab in Labels)
             {
@@ -619,6 +625,9 @@ namespace NscripterConverter
                 else
                     Directory.Delete(dirpath);
             }
+
+            Directory.CreateDirectory(dir + "DEBUG");
+            debug.writeFiles(dir + "DEBUG");
 
             Console.Beep();
             Console.WriteLine("...Done");
