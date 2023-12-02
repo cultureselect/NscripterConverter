@@ -11,11 +11,19 @@ namespace NscripterConverter
     {
         static void Main(string[] args)
         {
-            //EN
-            String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish_FULL\Wish1st_ES.txt", Encoding.UTF8);
+            if (args.Length != 2)
+            {
+                Console.WriteLine("Nscripter to Utage converter, written circa 2016. This application has no guarantee of usefulness besides amusing git history commits.");
+                Console.WriteLine("Usage:");
+                Console.WriteLine(".\\NscripterConverter.exe <inputFile> <outputFolder>");
+                Console.WriteLine("inputFile should be a well formed UTF8 encoded text file that is the outpuit from the WishScriptConversion Tool. I think.");
+                Console.WriteLine("outputFolder should be an empty folder. Full path, make sure to include the trailing \\");
+                Console.WriteLine("Example:");
+                Console.WriteLine(".\\NscripterConverter.exe .\\Wish_EN.txt C:\\Output\\");
+            }
 
-            //ES
-            //String[] lines = System.IO.File.ReadAllLines(@"C:\Users\Rob\Desktop\Wish Conversion\DoesTheThing\Wish_1P_Trans_20151012_Spanish Translation_UTF8.txt", Encoding.UTF8);
+            String[] lines = System.IO.File.ReadAllLines(args[0], Encoding.UTF8);
+            String outputDir = args[1];
 
             List<Label> Labels = new List<Label>();
 
@@ -52,6 +60,7 @@ namespace NscripterConverter
                     curr = new Label();
                     curr.Name = line.Substring(1);
                     continue;
+
                 }
 
 
@@ -597,7 +606,7 @@ namespace NscripterConverter
                 else
                 {
                     //Handle something else that is probably not needed but probably will end up being useful to know later Kappa
-                    Console.WriteLine(curr.Name + ": " + line);
+                   // Console.WriteLine(curr.Name + ": " + line);
                 }
             }
 
@@ -612,12 +621,9 @@ namespace NscripterConverter
             Console.WriteLine("Preparing to dump...");
             Console.Beep();
 
-            String dir = @"C:\Users\Rob\Desktop\Wish_FULL\Explode\";
-            //String dir = @"C:\Users\Rob\Desktop\Wish_FULL\Explode_ES\";
-
             foreach (Label lab in Labels)
             {
-                String dirpath = dir + lab.Name;
+                String dirpath = outputDir + lab.Name;
                 Directory.CreateDirectory(dirpath);
                 bool wrote = lab.writeFiles(dirpath);
                 if (wrote)
@@ -626,8 +632,8 @@ namespace NscripterConverter
                     Directory.Delete(dirpath);
             }
 
-            Directory.CreateDirectory(dir + "DEBUG");
-            debug.writeFiles(dir + "DEBUG");
+            Directory.CreateDirectory(outputDir + "DEBUG");
+            debug.writeFiles(outputDir + "DEBUG");
 
             Console.Beep();
             Console.WriteLine("...Done");
