@@ -16,10 +16,11 @@ namespace NscripterConverter
                 Console.WriteLine("Nscripter to Utage converter, written circa 2016. This application has no guarantee of usefulness besides amusing git history commits.");
                 Console.WriteLine("Usage:");
                 Console.WriteLine(".\\NscripterConverter.exe <inputFile> <outputFolder>");
-                Console.WriteLine("inputFile should be a well formed UTF8 encoded text file that is the outpuit from the WishScriptConversion Tool. I think.");
+                Console.WriteLine("inputFile should be a well formed UTF8 encoded text file that is your Nscripter file.");
                 Console.WriteLine("outputFolder should be an empty folder. Full path, make sure to include the trailing \\");
                 Console.WriteLine("Example:");
                 Console.WriteLine(".\\NscripterConverter.exe .\\Wish_EN.txt C:\\Output\\");
+                System.Environment.Exit(127);
             }
 
             String[] lines = System.IO.File.ReadAllLines(args[0], Encoding.UTF8);
@@ -615,11 +616,8 @@ namespace NscripterConverter
 
             //Now that our labels are full of information, write a folder for each one
             Console.WriteLine(Effect.getTotalCalls());
-            Console.Beep();
             Console.WriteLine("All Done!");
-            Console.ReadKey();
             Console.WriteLine("Preparing to dump...");
-            Console.Beep();
 
             foreach (Label lab in Labels)
             {
@@ -635,11 +633,7 @@ namespace NscripterConverter
             Directory.CreateDirectory(outputDir + "DEBUG");
             debug.writeFiles(outputDir + "DEBUG");
 
-            Console.Beep();
             Console.WriteLine("...Done");
-            Console.ReadKey();
-
-
         }
     }
 }
